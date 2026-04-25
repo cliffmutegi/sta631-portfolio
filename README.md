@@ -15,8 +15,6 @@ This repository contains a comprehensive, professional response to the construct
 - Stronger, more policy-relevant interpretation of results
 - Transparent responsiveness to feedback
 
-I am submitting this enhanced portfolio in the hope that the extra effort and statistical growth shown will be recognized with an upward adjustment to my final grade.
-
 ---
 
 ## Repository Contents
