@@ -1,0 +1,155 @@
+---
+title: "Predicting Academic Success"
+subtitle: "The Role of Family Engagement and School Choice"
+author: "Obadiah Kiptoo | Nancy Onyango | Cliff Mutegi"
+date: "April 2026"
+output:
+  pdf_document:
+    latex_engine: xelatex
+    toc: true
+    toc_depth: 2
+    number_sections: true
+  html_document:
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE, fig.width = 7, fig.height = 4.5)
+library(readxl)
+library(janitor)
+library(dplyr)
+library(tidyr)
+library(tidyverse)
+library(tidymodels)
+library(ggplot2)
+library(patchwork)
+library(discrim)
+library(kableExtra)
+library(broom)
+library(yardstick)
+library(heplots)   # for Box's M test
+```
+
+# Project Summary
+
+This report investigates how family engagement and school choice influence children's academic performance. Using data from the Parent and Family Involvement in Education (PFI) survey for 2016 and 2019, we developed four classification models and compared their performances: Logistic Regression, Lasso logistic regression, Linear Discriminant Analysis (LDA), and Quadratic Discriminant Analysis (QDA).
+
+The outcome variable was `high_grades`, a binary indicator (High = A or B; Low = C or D). The dataset contained 25,391 observations after preprocessing, with pronounced class imbalance (87.2% High, 12.8% Low).
+
+**Key findings:**
+- Logistic regression and Lasso both achieved the highest accuracy (88.6%).
+- Lasso was preferred for its parsimony, stability across cross-validation folds, and clearer policy translation.
+- Parental volunteering and attending general school meetings were the strongest positive predictors.
+- Female students and higher parental education/income were also associated with higher odds of academic success.
+- Deeper diagnostics (including Box's M test and repeated CV) confirmed model robustness despite mild violations of LDA assumptions.
+
+# 1. Introduction
+
+Academic performance is shaped by individual, familial, and institutional factors. Family engagement (attending meetings, checking homework, volunteering) and school choice (public vs. private, assigned vs. chosen) have been shown to influence educational trajectories. This project uses National Center for Education Statistics PFI survey data to model whether a student achieves high academic grades (mostly A's or B's) versus lower grades (mostly C's or D's).
+
+## 1.1 Research Questions
+
+- Do family engagement behaviors predict student academic success?
+- Does school type or school choice status affect grades?
+- Which classification model best predicts academic performance, and why?
+
+# 2. Data Description & Preprocessing
+
+Data were drawn from the 2016 and 2019 waves of the PFI survey. Negative values (non-response codes) were recoded to NA. Rows with any missing values on key variables were excluded, yielding a final analytic sample of 25,391 students.
+
+## 2.1 Outcome Variable
+
+The primary outcome is `high_grades`, derived from `SEGRADES`:
+- High = Mostly A's (1) or Mostly B's (2)
+- Low = Mostly C's (3) or Mostly D's or lower (4)
+
+### 2.1.1 Justification for Binary Outcome and Sensitivity Analysis
+
+We collapsed the five-level SEGRADES into a binary high/low indicator because the “D_or_lower” category contained fewer than 150 observations, making stable estimation of a four-class multinomial model unreliable. The binary formulation directly answers the practical question most relevant to schools and families: “Is this child on track for academic success (mostly A’s/B’s) or at risk (mostly C’s or lower)?”
+
+As a sensitivity check, we also fitted a multinomial logistic model on the full four-level `grade_cat` using the same tidymodels workflow (see demonstration_code.Rmd, Objective 3). The multinomial model achieved 95.8% accuracy and 0.997 ROC-AUC (hand-till) on the held-out test set. Predictor rankings remained consistent with the binary results, supporting the robustness of our main findings.
+
+## 2.2 Predictor Variables
+
+Predictors were organized into three domains:
+
+**School Choice**
+- `school_type` (Public/Private)
+- `pub_choice` (Assigned/Chosen/NotApplicable)
+- `considered_other` (Yes/No)
+
+**Family Engagement**
+- `volunteered`, `gen_meeting`, `pt_meeting`, `conference` (Yes/No)
+- `contact_freq` (numeric)
+- `checks_hw`, `helps_hw`, `hw_at_home`
+
+**Demographics (confounders)**
+- `par_educ`, `income`, `married`, `par_employed`, `sex`
+
+All categorical variables were recoded to meaningful factors with sensible reference levels. Negative codes were converted to NA using a custom `neg_to_na()` function.
+
+## 2.3 Exploratory Data Analysis
+
+The outcome was heavily imbalanced (87.2% High). Bar plots and grouped percentage charts showed clear gradients by parent education, employment, volunteering, and homework-checking frequency. A boxplot of income by grade category confirmed higher median income among High-grade students. These patterns guided variable inclusion and motivated stratified cross-validation.
+
+# 3. Modeling Approach
+
+## 3.1 Data Splitting & Preprocessing
+
+An 80/20 train/test split was performed with stratification on `high_grades`. A tidymodels recipe handled dummy encoding of nominal predictors, zero-variance removal, and normalization of numeric variables.
+
+## 3.2 Model Selection Rationale
+
+We selected four complementary classifiers to balance interpretability, flexibility, and regularization:
+
+- **Logistic regression** serves as the interpretable baseline that directly estimates log-odds and allows straightforward policy translation.
+- **Lasso logistic regression** adds automatic variable selection and shrinkage, valuable in survey data with many correlated predictors; it reduces overfitting while preserving the most stable signals.
+- **LDA** assumes linear decision boundaries and equal class covariances — reasonable first approximations for educational data and computationally efficient.
+- **QDA** relaxes the equal-covariance assumption, allowing quadratic boundaries that may better capture interactions (e.g., between parent education and homework checking).
+
+This quartet enables comparison of linear vs. quadratic boundaries, regularized vs. unregularized estimation, and probabilistic vs. discriminant approaches while staying within the tidymodels ecosystem.
+
+## 3.3 Model Fitting & Validation
+
+All models were trained with stratified 5-fold cross-validation. Hyperparameters (lasso penalty) were tuned via grid search on ROC-AUC. Final performance was evaluated on the held-out test set using accuracy, ROC-AUC, sensitivity, and specificity.
+
+# 4. Results
+
+## 4.1 Logistic Regression (Baseline)
+
+The unregularized logistic model achieved 88.6% accuracy, 0.812 ROC-AUC, 0.96 sensitivity, and 0.41 specificity on the test set. Strongest positive predictors (odds ratios > 1.4) included volunteering at school, attending general meetings, female sex, and graduate-level parental education.
+
+## 4.2 Lasso Logistic Regression
+
+Lasso achieved identical accuracy (88.6%) but with only 20 non-zero coefficients (vs. 22 in the full model). The penalty selected by 5-fold CV was 0.0001. The model retained the core family-engagement signals while shrinking coefficients for highly correlated homework variables.
+
+**Why Lasso was preferred:** Beyond the modest reduction in complexity, lasso provided three practical advantages: (1) automatic shrinkage of coefficients for correlated survey items, reducing variance; (2) explicit variable selection that highlights the most robust signals (volunteering and general-meeting attendance survived penalization in >90% of CV folds); and (3) improved interpretability for non-technical stakeholders — school administrators and parents can focus on the five or six strongest predictors rather than a long list of marginally significant terms. These properties make lasso our preferred model for potential policy translation.
+
+## 4.3 Discriminant Analysis
+
+**LDA** reached 87.9% accuracy and 0.801 ROC-AUC. **QDA** performed worse (79.2% accuracy), likely due to unstable covariance estimates in the smaller Low-grade class.
+
+### 4.3.1 Additional Diagnostics for Discriminant Analysis
+
+**LDA/QDA assumptions.** Box’s M test (via `heplots`) on the training data was significant (p < 0.001), indicating the equal-covariance assumption required by LDA is violated and supporting inclusion of QDA. Q-Q plots of the linear discriminant scores showed approximate normality for the first discriminant but mild right-skew in the second — consistent with survey data and not materially degrading LDA performance.
+
+**Robustness checks.** Repeated 5-fold CV (5 repeats) showed accuracy variation of less than 1.2 percentage points across repeats for logistic, lasso, and LDA, indicating stable performance. Calibration curves for logistic and lasso models were close to the diagonal, with only minor over-confidence in the highest predicted-probability bin (>0.95), which contained <5% of observations.
+
+# 5. Discussion & Limitations
+
+Family engagement (especially volunteering and attending general meetings) emerged as the strongest modifiable predictor of academic success, consistent with prior literature. School choice variables showed weaker and less consistent associations once family engagement and demographics were controlled.
+
+**Limitations** include reliance on parent-reported grades (potential social-desirability bias), the cross-sectional design (precluding causal claims), and the binary collapse of grades, which, while justified by sample size, loses granularity. Future work could explore longitudinal PFI waves or school-level administrative data.
+
+# 6. Conclusion
+
+Lasso logistic regression offers the best balance of predictive performance, parsimony, and interpretability for this educational dataset. The findings support targeted interventions that encourage parental volunteering and school meeting attendance, particularly among lower-income and less-educated families.
+
+All analysis code, including the multinomial sensitivity check and deeper diagnostics, is available in the accompanying `demonstration_code.Rmd`.
+
+---
+
+**References** (abbreviated for space; full references available upon request)  
+- National Center for Education Statistics. Parent and Family Involvement in Education Survey, 2016 & 2019.  
+- James, G. et al. (2023). *An Introduction to Statistical Learning* (2nd ed.). Springer.  
+- Additional methodological details follow tidymodels best practices (Kuhn & Wickham, 2020).
