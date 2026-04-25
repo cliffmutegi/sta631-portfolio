@@ -2,8 +2,7 @@
 
 **Course:** Statistical Modeling I (Winter 2026)  
 **Instructor:** Dr. John Appiah-Kubi  
-**Student:** Cliff S. K. Mutegi (G02486017)  
-**Current Grade:** 236/313 (75.4%)
+**Student:** Cliff S. K. Mutegi
 
 ---
 
