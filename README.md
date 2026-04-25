@@ -72,14 +72,6 @@ This repository contains a comprehensive, professional response to the construct
 
 ---
 
-## How to View the Portfolio Website
-
-1. Go to the GitHub repository
-2. Enable GitHub Pages (Settings → Pages → Source: root → Save)
-3. The professional website will be available at `https://yourusername.github.io/sta631-portfolio`
-
----
-
 ## Contact
 
 **Cliff S. K. Mutegi**  
