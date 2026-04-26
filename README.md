@@ -2,7 +2,8 @@
 
 **Course:** Statistical Modeling I (Winter 2026)  
 **Instructor:** Dr. John Appiah-Kubi  
-**Student:** Cliff S. K. Mutegi
+**Student:** Cliff S. K. Mutegi (G02486017)  
+**Final Portfolio Submission**
 
 ---
 
@@ -14,6 +15,8 @@ This repository contains a comprehensive, professional response to the construct
 - Rigorous diagnostic checking (including assumption testing for LDA/QDA)
 - Stronger, more policy-relevant interpretation of results
 - Transparent responsiveness to feedback
+
+This enhanced portfolio demonstrates the full scope of work completed for STA 631 and my commitment to rigorous statistical practice.
 
 ---
 
@@ -28,6 +31,8 @@ This repository contains a comprehensive, professional response to the construct
 | `Reflection_Document_Cliff_Mutegi.pdf` | Detailed reflection with five “Show and Tell” entries |
 | `Self_Evaluation_Letter_Cliff_Mutegi.pdf` | Cover-letter format self-evaluation |
 | `index.html` | Professional portfolio website (view at GitHub Pages) |
+
+**Important:** For the download links on the website to work, upload **all** PDF and Rmd files to the root of the repository (same folder as `index.html`).
 
 ---
 
@@ -69,6 +74,14 @@ This repository contains a comprehensive, professional response to the construct
 - **Statistical Growth:** Moved from basic metrics to proper assumption checking and robustness analysis.
 - **Professional Communication:** Clear model justification and stakeholder-relevant interpretation.
 - **Iterative Improvement:** Transparent before/after comparison showing genuine development as a data scientist.
+
+---
+
+## How to View the Portfolio Website
+
+1. Go to the GitHub repository
+2. Enable GitHub Pages (Settings → Pages → Source: root → Save)
+3. The professional website will be available at `https://yourusername.github.io/sta631-portfolio`
 
 ---
 
