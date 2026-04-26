@@ -32,8 +32,6 @@ This enhanced portfolio demonstrates the full scope of work completed for STA 63
 | `Self_Evaluation_Letter_Cliff_Mutegi.pdf` | Cover-letter format self-evaluation |
 | `index.html` | Professional portfolio website (view at GitHub Pages) |
 
-**Important:** For the download links on the website to work, upload **all** PDF and Rmd files to the root of the repository (same folder as `index.html`).
-
 ---
 
 ## How Feedback Was Addressed
