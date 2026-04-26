@@ -81,7 +81,7 @@ This enhanced portfolio demonstrates the full scope of work completed for STA 63
 
 1. Go to the GitHub repository
 2. Enable GitHub Pages (Settings → Pages → Source: root → Save)
-3. The professional website will be available at `https://yourusername.github.io/sta631-portfolio`
+3. The professional website will be available at `https://cliffmutegi.github.io/sta631-portfolio`
 
 ---
 
